@@ -1,23 +1,23 @@
 # Secrets
-include/secrets.h
+firmware/include/secrets.h
 server/.env
 
 # PlatformIO
-.pio/
-.pioenvs/
-.piolibdeps/
+firmware/.pio/
+firmware/.pioenvs/
+firmware/.piolibdeps/
 
 # VS Code / IntelliSense
-.vscode/
-compile_commands.json
-.cache/
+firmware/.vscode/
+firmware/compile_commands.json
+firmware/.cache/
 
 # server/
-__pycache__/
-*.pyc
-*.pyo
-venv/
-env/
+server/__pycache__/
+server/*.pyc
+server/*.pyo
+server/venv/
+server/env/
 
 # OS junk
 .DS_Store
