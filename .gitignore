@@ -1,0 +1,24 @@
+# Secrets
+include/secrets.h
+server/.env
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VS Code / IntelliSense
+.vscode/
+compile_commands.json
+.cache/
+
+# server/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+
+# OS junk
+.DS_Store
+Thumbs.db

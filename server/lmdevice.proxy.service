@@ -1,0 +1,15 @@
+# Systemd unit for VPS used for proxy
+[Unit]
+Description=LM Device Proxy
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/lmdevice
+EnvironmentFile=/etc/lmdevice.env
+ExecStart=/usr/bin/python3 proxy.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
