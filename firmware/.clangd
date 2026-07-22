@@ -1,7 +1,9 @@
 CompileFlags:
-  CompilationDatabase: .
-Remove:
+  Remove:
     - -mlongcalls
+    - -fstrict-volatile-bitfields
     - -fno-tree-switch-conversion
+    - -mtext-section-literals
+    - -mtarget-align
   Add:
-    - -Wno-unknown-warning-option
+    - -Wno-unknown-argument
