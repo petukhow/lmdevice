@@ -22,9 +22,19 @@ void renderScreen() {
     display.clearDisplay();
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
-
     display.setCursor(0, 0);
-    display.println(lastReply);
+    
+    const int charsPerLine = 20;
+    const int maxLines = 3;
+
+    int printedLines = 0;
+    int i = 0;
+    while (i < (int)lastReply.length() && printedLines < maxLines) {
+        int lineLen = min(charsPerLine, (int)lastReply.length() - i);
+        display.println(lastReply.substring(i, i + lineLen));
+        i += lineLen;
+        printedLines++;
+    }
 
     display.setCursor(0, 40);
     display.println("--------------------");
@@ -35,6 +45,41 @@ void renderScreen() {
     display.display();
 }
 
+void setup() {
+    Serial.begin(115200);
+    delay(1000);
+
+    Wire.begin();
+    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+        Serial.println("SSD1306 allocation failed");
+        while (1);
+    }
+
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+    WiFi.begin(ssid, password);
+
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+        delay(500);
+        Serial.print(".");
+        attempts++;
+    }
+
+    Serial.println();
+
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi FAILED to connect");
+    } else {
+        Serial.println("WiFi connected!");
+        Serial.print("IP address: ");
+        Serial.println(WiFi.localIP());
+    }
+
+    renderScreen();
+}
+
 void loop() {
     t9.update();
     renderScreen();
@@ -42,36 +87,6 @@ void loop() {
     if (t9.wasEnterPressed()) {
         String msg = t9.buffer;
         t9.clear();
-
-        Serial.begin(115200);
-        delay(1000);
-        if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-            Serial.println("SSD1306 allocation failed");
-            while (1);
-        }
-
-        WiFi.mode(WIFI_STA);
-        WiFi.disconnect();
-        delay(100);
-        WiFi.begin(ssid, password);
-
-        int attempts = 0;
-        while (WiFi.status() != WL_CONNECTED && attempts < 30) {
-            delay(500);
-            Serial.print(".");
-            attempts++;
-        }
-
-        Serial.println();
-
-        if (WiFi.status() != WL_CONNECTED) {
-            Serial.println("WiFi FAILED to connect");
-            return;
-        }
-
-        Serial.println("WiFi connected!");
-        Serial.print("IP address: ");
-        Serial.println(WiFi.localIP());
 
         HTTPClient https;
         https.begin("http://" + String(serverIp) + ":5000/ask");

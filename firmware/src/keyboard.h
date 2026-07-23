@@ -43,51 +43,20 @@ public:
     int cursorPos = 0;
 
     void update() {
-        char key = keypad.getKey();
+        keypad.getKeys();
         unsigned long now = millis();
 
         if (_pendingDigit != 0 && (now - _lastPressTime > TAP_TIMEOUT_MS)) {
             _commitPendingButton();
         }
 
-        if (!key) return;
-
-        if (key == '\n') {
-            _commitPendingButton();
-            _isEnterPressed = true;
-            return;
-        }
-
-        if (key == '\b') {
-            _commitPendingButton();
-            if (cursorPos > 0) {
-                buffer.remove(cursorPos-1, 1);
-                cursorPos--;
+        for (int i = 0; i < LIST_MAX; i++) {
+            if (keypad.key[i].stateChanged && keypad.key[i].kstate == PRESSED) {
+                char key = keypad.key[i].kchar;
+                _handleKey(key, now);
             }
-            return;
         }
-
-        if (key == '\x01') {
-            _commitPendingButton();
-            if (cursorPos < buffer.length()) cursorPos++;
-            return;
-        }
-
-        if (key == '\x02') {
-            _commitPendingButton();
-            if (cursorPos < 0) cursorPos--;
-            return;
-        }
-
-        if (key == _pendingDigit && (now - _lastPressTime <= TAP_TIMEOUT_MS)) {
-            _tapCount++;
-        } else {
-            _commitPendingButton();
-            _pendingDigit = key;
-            _tapCount = 0;
-        }
-
-        _lastPressTime = now;
+        
     }
 
     bool wasEnterPressed() {
@@ -120,6 +89,51 @@ private:
         if (len > 0) {
             char c = options[_tapCount % len];
             buffer = buffer.substring(0, cursorPos) + String(c) + buffer.substring(cursorPos);
+            cursorPos++;
         }
+        
+        _pendingDigit = 0;
+        _tapCount = 0;
+    }
+
+    void _handleKey(char key, unsigned long now) {
+        if (!key) return;
+
+        if (key == '\n') {
+            _commitPendingButton();
+            _isEnterPressed = true;
+            return;
+        }
+
+        if (key == '\b') {
+            _commitPendingButton();
+            if (cursorPos > 0) {
+                buffer.remove(cursorPos-1, 1);
+                cursorPos--;
+            }
+            return;
+        }
+
+        if (key == '\x01') {
+            _commitPendingButton();
+            if (cursorPos < buffer.length()) cursorPos++;
+            return;
+        }
+
+        if (key == '\x02') {
+            _commitPendingButton();
+            if (cursorPos > 0) cursorPos--;
+            return;
+        }
+
+        if (key == _pendingDigit && (now - _lastPressTime <= TAP_TIMEOUT_MS)) {
+            _tapCount++;
+        } else {
+            _commitPendingButton();
+            _pendingDigit = key;
+            _tapCount = 0;
+        }
+
+        _lastPressTime = now;
     }
 };
